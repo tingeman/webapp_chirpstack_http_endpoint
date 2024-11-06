@@ -1,0 +1,9 @@
+services:
+  http_endpoint:
+    container_name: http_endpoint
+    build: .
+    ports:
+      - "8060:8050"
+    environment:
+      - APP_ENV=production
+
