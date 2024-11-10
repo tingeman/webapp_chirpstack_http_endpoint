@@ -1,5 +1,5 @@
 import datetime
-import loggings
+import logging
 from google.protobuf.json_format import Parse, MessageToJson
 from google.protobuf.message import DecodeError
 from pathlib import Path
