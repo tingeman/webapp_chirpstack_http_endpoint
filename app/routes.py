@@ -76,7 +76,7 @@ def clear_messages_route():
     """
     if 'confirm' in request.args and request.args.get('confirm') == 'yes':
         clear_messages_from_db()
-        clear_json_files('/path/to/json/files')  # Replace with the actual path to the JSON files
+        clear_json_files()  # Replace with the actual path to the JSON files
         return redirect(url_for('endpoint.index'))  # Redirect to the home page after clearing messages
     return render_template('clear_messages.html')
 

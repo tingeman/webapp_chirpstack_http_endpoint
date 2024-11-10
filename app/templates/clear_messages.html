@@ -9,9 +9,9 @@
 <body>
     <h1>Clear Messages</h1>
     <p>Are you sure you want to clear all messages from the database?</p>
-    <form action="{{ url_for('main.clear_messages_route') }}" method="get">
+    <form action="{{ url_for('endpoint.clear_messages_route') }}" method="get">
         <button type="submit" name="confirm" value="yes">OK</button>
-        <button type="button" onclick="window.location.href='{{ url_for('main.index') }}'">Cancel</button>
+        <button type="button" onclick="window.location.href='{{ url_for('endpoint.index') }}'">Cancel</button>
     </form>
 </body>
 </html>
