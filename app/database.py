@@ -11,7 +11,7 @@ DB_FILE = settings.DB_FILE  # Path to the SQLite database file from config
 # Function to get a database connection
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(DATABASE)
+        g.db = sqlite3.connect(DB_FILE)
         # No need to implement a retry mechanism here
         # as the connect command is not affected by a locked database
     return g.db

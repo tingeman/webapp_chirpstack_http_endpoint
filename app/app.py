@@ -14,7 +14,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 # Initialize the database
 logging.info("Initializing database...")
-init_db()
+with app.app_context():
+    init_db()
 
 # Register the blueprint
 app.register_blueprint(bp)
