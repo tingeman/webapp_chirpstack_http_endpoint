@@ -2,7 +2,7 @@ import time
 import logging
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from handlers import handle_uplink_event, handle_join_event
-from database import get_last_messages, clear_messages
+from database import get_last_messages, clear_messages_from_db
 from utils import clear_json_files
 
 bp = Blueprint('endpoint', __name__)
