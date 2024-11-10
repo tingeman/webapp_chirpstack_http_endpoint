@@ -20,7 +20,8 @@ object = {
 base_payload = {'object': object}
 
 # Define the URL of the Flask app
-url = "http://localhost:8060/event?event=up"
+url = "http://arctic-lorawan.sustain.dtu.dk:8060/event?event=up"
+#url = "http://localhost:8060/event?event=up"
 
 # Send the payload as JSON
 json_payload = base_payload.copy()

@@ -1,10 +1,13 @@
 from flask import Flask
 import logging
 from config import run_server_settings
-from database import init_db
+from database import init_db, close_db
 from routes import bp
 
 app = Flask(__name__)
+
+# Close the database connection after each request
+app.teardown_appcontext(close_db)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

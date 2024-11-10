@@ -1,6 +1,8 @@
 Flask
+gunicorn
+gevent
 chirpstack-api
 protobuf
-gunicorn
 pydantic
 pydantic-settings
+

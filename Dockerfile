@@ -29,4 +29,4 @@ COPY --chown=web:web ./app /var/www/app/
 
 
 EXPOSE 8050
-CMD ["gunicorn", "-b", "0.0.0.0:8050", "--log-level", "debug", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8050", "--worker-class", "gevent", "--workers", "3", "--log-level", "debug", "app:app"]
