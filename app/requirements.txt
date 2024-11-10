@@ -3,3 +3,4 @@ chirpstack-api
 protobuf
 gunicorn
 pydantic
+pydantic-settings

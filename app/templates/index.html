@@ -1,0 +1,17 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Welcome to the ChirpStack HTTP Endpoint</h1>
+    <p>This is the home page of the web application.</p>
+    <ul>
+        <li><a href="{{ url_for('endpoint.last_messages') }}">View last n messages submitted</a></li>
+        <li><a href="{{ url_for('endpoint.health_check') }}">Health Check</a></li>
+    </ul>
+</body>
+</html>

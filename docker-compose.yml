@@ -1,9 +1,15 @@
 services:
   http_endpoint:
     container_name: http_endpoint
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8060:8050"
+    volumes:
+      - http_endpoint_data:/var/www/app/data
     environment:
       - APP_ENV=production
 
+volumes:
+  http_endpoint_data:

@@ -1,5 +1,5 @@
 import datetime
-import logging
+import loggings
 from google.protobuf.json_format import Parse, MessageToJson
 from google.protobuf.message import DecodeError
 from pathlib import Path
@@ -58,3 +58,15 @@ def save_protobuf_as_json(protobuf_message, event_type: str) -> None:
         logging.info(f"Saved protobuf message as JSON to {filepath}")
     except Exception as e:
         logging.error(f"Failed to save protobuf message as JSON: {str(e)}")
+
+def clear_json_files() -> None:
+    """
+    Removes all JSON files from the data directory.
+    """
+    try:
+        for file_path in OUTPUT_DIR.glob('*.json'):
+            file_path.unlink()
+            logging.info(f"Removed file: {file_path}")
+        logging.info(f"All JSON files cleared from {OUTPUT_DIR}.")
+    except Exception as e:
+        logging.error(f"Failed to clear JSON files: {str(e)}")

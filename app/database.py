@@ -1,5 +1,6 @@
 import sqlite3
 import logging
+import json
 from config import settings
 
 DB_FILE = settings.DB_FILE  # Path to the SQLite database file from config
@@ -10,6 +11,9 @@ def init_db() -> None:
     Initializes the SQLite database by creating the messages table if it does not exist.
     """
     try:
+        logging.info("Initializing database...")
+        if check_table_exists('messages'):
+            logging.info("Table 'messages' exists")
         with sqlite3.connect(DB_FILE) as conn:
             cursor = conn.cursor()
             # Create the messages table if it does not exist
@@ -17,10 +21,8 @@ def init_db() -> None:
                 CREATE TABLE IF NOT EXISTS messages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     event_type TEXT NOT NULL,
-                    dev_eui TEXT NOT NULL,
                     payload TEXT,
-                    dev_addr TEXT,
-                    received_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    received_at DATETIME DEFAULT (datetime('now', 'utc'))
                 )
             ''')
         logging.info("Database initialized.")
@@ -28,25 +30,23 @@ def init_db() -> None:
         logging.error(f"Failed to initialize database: {str(e)}")
 
 # Store the message details in the SQLite database
-def store_message(event_type: str, dev_eui: str, payload: str, dev_addr: str) -> None:
+def store_json_message(event_type: str,  payload: str) -> None:
     """
     Stores the message details in the SQLite database.
 
     Args:
         event_type (str): The type of event (e.g., "uplink" or "join").
-        dev_eui (str): The device EUI (unique identifier for the device).
         payload (str): The payload data (in hexadecimal format).
-        dev_addr (str): The device address (specific to join events).
     """
     try:
         with sqlite3.connect(DB_FILE) as conn:
             cursor = conn.cursor()
             # Insert the message details into the messages table
             cursor.execute('''
-                INSERT INTO messages (event_type, dev_eui, payload, dev_addr)
-                VALUES (?, ?, ?, ?)
-            ''', (event_type, dev_eui, payload, dev_addr))
-        logging.info(f"Stored message of type '{event_type}' from device '{dev_eui}' in the database.")
+                INSERT INTO messages (event_type, payload)
+                VALUES (?, ?)
+            ''', (event_type, payload))
+        logging.info(f"Stored message of type '{event_type}' in the database.")
     except sqlite3.Error as e:
         logging.error(f"Failed to store message in the database: {str(e)}")
 
@@ -64,7 +64,7 @@ def get_last_messages(n: int) -> list:
         with sqlite3.connect(DB_FILE) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT event_type, dev_eui, payload, dev_addr, received_at
+                SELECT event_type, payload, received_at
                 FROM messages
                 ORDER BY received_at DESC
                 LIMIT ?
@@ -73,14 +73,56 @@ def get_last_messages(n: int) -> list:
             messages = [
                 {
                     "event_type": row[0],
-                    "dev_eui": row[1],
-                    "payload": row[2],
-                    "dev_addr": row[3],
-                    "received_at": row[4]
+                    "payload": json.loads(row[1]),  # Parse payload as JSON
+                    "received_at": row[2]
                 }
                 for row in rows
             ]
+        logging.info(f"Retrieved last {n} messages from the database.")
         return messages
     except sqlite3.Error as e:
         logging.error(f"Failed to retrieve messages from the database: {str(e)}")
         return []
+    except json.JSONDecodeError as e:
+        logging.error(f"Failed to parse payload as JSON: {str(e)}")
+        return []
+    finally:
+        logging.info("Leaving get_last_messages function.")
+
+
+def check_table_exists(table_name: str) -> bool:
+    """
+    Checks if a table exists in the SQLite database.
+
+    Args:
+        table_name (str): The name of the table to check.
+
+    Returns:
+        bool: True if the table exists, False otherwise.
+    """
+    try:
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT name
+                FROM sqlite_master
+                WHERE type='table' AND name=?
+            ''', (table_name,))
+            result = cursor.fetchone()
+            return result is not None
+    except sqlite3.Error as e:
+        logging.error(f"Failed to check if table exists: {str(e)}")
+        return False
+
+def clear_messages_from_db() -> None:
+    """
+    Clears all messages from the SQLite database.
+    """
+    try:
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM messages')
+            conn.commit()
+        logging.info("All messages cleared from the database.")
+    except sqlite3.Error as e:
+        logging.error(f"Failed to clear messages from the database: {str(e)}")

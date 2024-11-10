@@ -3,7 +3,8 @@
 
 *.db
 backup/
-
+app/json_output/*.json
+app/data/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
