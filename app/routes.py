@@ -1,7 +1,7 @@
 import time
 import logging
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for
-from handlers import handle_uplink_event, handle_join_event
+from handlers import handle_event
 from database import get_last_messages, clear_messages_from_db
 from utils import clear_json_files
 
@@ -17,9 +17,7 @@ def handle_event() -> tuple:
     
     try:
         event_type = request.args.get('event')
-        logging.debug(f"Received request for event type:\n{event_type}")
-        if (not event_type) or (event_type not in ['up', 'join']):
-            return "Invalid or missing 'event' query parameter", 400
+        logging.debug(f"Received request for event type: {event_type}")
 
         body = request.data
         logging.debug(f"Received request body:\n{body}")
@@ -28,14 +26,10 @@ def handle_event() -> tuple:
 
         if request.content_type not in {'application/json', 'application/octet-stream'}:
             return "Invalid Content-Type", 400
+
         is_json = request.content_type == 'application/json'
 
-        if event_type == "up":
-            return handle_uplink_event(body, is_json)
-        elif event_type == "join":
-            return handle_join_event(body, is_json)
-        else:
-            return f"Handler for event '{event_type}' is not implemented", 400
+        return handle_event(event_type, body, is_json)
 
     except Exception as e:
         logging.error(f"An unexpected error occurred: {str(e)}")

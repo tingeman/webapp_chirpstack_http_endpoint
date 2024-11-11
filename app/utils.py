@@ -1,6 +1,6 @@
 import datetime
 import logging
-from google.protobuf.json_format import Parse, MessageToJson
+from google.protobuf.json_format import Parse
 from google.protobuf.message import DecodeError
 from pathlib import Path
 from config import settings
@@ -37,7 +37,7 @@ def unmarshal(body: bytes, payload, is_json: bool):
         raise DecodeError(f"Error unmarshaling data: {str(e)}")
 
 # Save a protobuf message as a JSON file
-def save_protobuf_as_json(protobuf_message, event_type: str) -> None:
+def save_json_to_file(event_type: str, json_data) -> None:
     """
     Saves a protobuf message as a JSON file.
 
@@ -46,8 +46,6 @@ def save_protobuf_as_json(protobuf_message, event_type: str) -> None:
         event_type (str): The type of event (e.g., "uplink" or "join").
     """
     try:
-        # Convert the protobuf message to JSON format
-        json_data = MessageToJson(protobuf_message)
         # Generate a filename based on the event type and current timestamp
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{event_type}_{timestamp}.json"
@@ -55,9 +53,9 @@ def save_protobuf_as_json(protobuf_message, event_type: str) -> None:
         filepath = OUTPUT_DIR / filename
         with open(filepath, 'w') as json_file:
             json_file.write(json_data)
-        logging.info(f"Saved protobuf message as JSON to {filepath}")
+        logging.info(f"Saved JSON message to {filepath}")
     except Exception as e:
-        logging.error(f"Failed to save protobuf message as JSON: {str(e)}")
+        logging.error(f"Failed to save JSON message: {str(e)}")
 
 def clear_json_files() -> None:
     """
