@@ -17,10 +17,12 @@ def handle_event() -> tuple:
     
     try:
         event_type = request.args.get('event')
+        logging.debug(f"Received request for event type:\n{event_type}")
         if (not event_type) or (event_type not in ['up', 'join']):
             return "Invalid or missing 'event' query parameter", 400
 
         body = request.data
+        logging.debug(f"Received request body:\n{body}")
         if not body:
             return "Missing request body", 400
 
