@@ -50,7 +50,7 @@ def handle_event(event_type, body, is_json):
         json_data = MessageToJson(message)
 
         # Save the protobuf message as JSON to a file
-        save_json_to_file(event_type, message)
+        save_json_to_file(event_type, json_data)
         
         # Store the message details in the SQLite database
         store_json_message(event_type, json_data)
