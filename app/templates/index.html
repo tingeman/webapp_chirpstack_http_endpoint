@@ -10,8 +10,21 @@
     <h1>Welcome to the ChirpStack HTTP Endpoint</h1>
     <p>This is the home page of the web application.</p>
     <ul>
-        <li><a href="{{ url_for('endpoint.last_messages') }}">View last n messages submitted</a></li>
         <li><a href="{{ url_for('endpoint.health_check') }}">Health Check</a></li>
+        <li><a href="{{ url_for('endpoint.last_messages', n=5) }}">View last n submitted messages</a></li>
+        <li><a href="{{ url_for('endpoint.last_messages', n=5, event='up') }}">View last n submitted messages of type "up"</a></li>
     </ul>
+    <p>Valid event types are: 
+        <ul>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='up') }}">up</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='join') }}">join</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='ack') }}">ack</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='txack') }}">txack</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='log') }}">log</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='status') }}">status</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='location') }}">location</a></li>
+            <li><a href="{{ url_for('endpoint.last_messages', n=5, event='integration') }}">integration</a></li>
+        </ul>
+    </p>
 </body>
 </html>
