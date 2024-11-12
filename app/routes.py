@@ -8,7 +8,7 @@ from utils import clear_json_files
 bp = Blueprint('endpoint', __name__)
 
 @bp.route('/event', methods=['POST'])
-def handle_event() -> tuple:
+def process_event() -> tuple:
     """
     Handles incoming POST requests for different event types (uplink, join).
     Parses the request and routes it to the appropriate handler based on the event type.
