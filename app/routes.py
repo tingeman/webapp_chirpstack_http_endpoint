@@ -44,10 +44,13 @@ def last_messages() -> tuple:
     logging.info("Received request for last messages")
     try:
         n = request.args.get('n', default=5, type=int)
+        event_type = request.args.get('event', default=None)
         if n <= 0:
             return "Invalid 'n' query parameter", 400
+        if event_type and event_type not in {'up', 'join', 'ack', 'txack', 'log', 'status', 'location', 'integration'}:
+            return "Invalid 'event' query parameter", 400
 
-        messages = get_last_messages(n)
+        messages = get_last_messages(n, event_type)
         output = jsonify(messages)
         logging.info(f"Returning last {n} messages")
         return output, 200

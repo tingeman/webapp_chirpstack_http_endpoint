@@ -103,12 +103,13 @@ def store_json_message(event_type: str,  payload: str) -> None:
     except sqlite3.Error as e:
         logging.error(f"Failed to store message in the database: {str(e)}")
 
-def get_last_messages(n: int) -> list:
+def get_last_messages(n: int, event_type: str) -> list:
     """
     Retrieves the last 'n' messages from the SQLite database.
 
     Args:
         n (int): The number of messages to retrieve.
+        event_type (str): The type of event (e.g., "up" or "join").
 
     Returns:
         list: A list of dictionaries containing the message details.
@@ -117,12 +118,22 @@ def get_last_messages(n: int) -> list:
         db = get_db()  # Use get_db() to get the connection
         with RetryDBOperation():
             cursor = db.cursor()
-            cursor.execute('''
-                SELECT event_type, payload, received_at
-                FROM messages
-                ORDER BY received_at DESC
-                LIMIT ?
-            ''', (n,))
+            if event_type:
+                cursor.execute('''
+                    SELECT event_type, payload, received_at
+                    FROM messages
+                    WHERE event_type = ?
+                    ORDER BY received_at DESC
+                    LIMIT ?
+                ''', (event_type, n))
+            else:
+                cursor.execute('''
+                    SELECT event_type, payload, received_at
+                    FROM messages
+                    ORDER BY received_at DESC
+                    LIMIT ?
+                ''', (n,))
+
         with RetryDBOperation():
             rows = cursor.fetchall()
         
