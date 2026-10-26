@@ -56,15 +56,3 @@ def save_json_to_file(event_type: str, json_data) -> None:
         logging.info(f"Saved JSON message to {filepath}")
     except Exception as e:
         logging.error(f"Failed to save JSON message: {str(e)}")
-
-def clear_json_files() -> None:
-    """
-    Removes all JSON files from the data directory.
-    """
-    try:
-        for file_path in OUTPUT_DIR.glob('*.json'):
-            file_path.unlink()
-            logging.info(f"Removed file: {file_path}")
-        logging.info(f"All JSON files cleared from {OUTPUT_DIR}.")
-    except Exception as e:
-        logging.error(f"Failed to clear JSON files: {str(e)}")
