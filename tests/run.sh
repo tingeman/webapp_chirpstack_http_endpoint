@@ -195,7 +195,7 @@ t_clear_messages_gone() {
   need_app
   local m
   for m in GET POST; do
-    case "$(req "$C1" "$m" '/clear_messages?confirm=yes' </dev/null | cut -c1-3)" in
+    case "$(req "$C1" "$m" '/clear_messages?confirm=yes' </dev/null | head -n1 | cut -c1-3)" in
       404|405) ;;
       *) fail_t "$m /clear_messages is still served" ;;
     esac
