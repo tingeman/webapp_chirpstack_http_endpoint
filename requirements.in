@@ -1,7 +1,8 @@
 Flask
 gunicorn
 gevent
-chirpstack-api
+# 4.14.x is the last release with integration.IntegrationEvent (removed in 4.15, handlers.py needs it)
+chirpstack-api<4.15
 protobuf
 pydantic
 pydantic-settings

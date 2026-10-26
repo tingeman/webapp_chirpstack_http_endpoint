@@ -34,5 +34,6 @@ EXPOSE 8050
 HEALTHCHECK --interval=60s --timeout=10s --start-period=20s --start-interval=2s --retries=3 \
     CMD ["python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8050/health', timeout=5).status == 200 else 1)"]
 
-# Logs go to stdout/stderr (the container log).
-CMD ["gunicorn", "-b", "0.0.0.0:8050", "--worker-class", "gevent", "--workers", "3", "--log-level", "info", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
+# Logs go to stdout/stderr (the container log). No control socket: the web user has no home
+# directory to put it in.
+CMD ["gunicorn", "-b", "0.0.0.0:8050", "--worker-class", "gevent", "--workers", "3", "--log-level", "info", "--no-control-socket", "--access-logfile", "-", "--error-logfile", "-", "app:app"]

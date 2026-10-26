@@ -123,6 +123,12 @@ t_settings() {
   contains "JSON_OUTPUT_DIR" "$out" "$DATA/json"
 }
 
+t_event_types() {
+  local out
+  out="$(docker run --rm --network none --entrypoint python "$IMAGE" -c     'from handlers import event_dict; print(sorted(event_dict))')" || fail_t "handlers do not import"
+  expect "event types" "$out" "['ack', 'integration', 'join', 'location', 'log', 'status', 'txack', 'up']"
+}
+
 t_log_level() {
   local cmd
   cmd="$(docker inspect -f '{{json .Config.Cmd}}' "$IMAGE")"
@@ -228,6 +234,7 @@ run_test "image python packages import" t_python_imports
 run_test "image runs as the web user (uid 30000)" t_user
 run_test "image defines a healthcheck on /health" t_healthcheck_defined
 run_test "database and JSON paths default into the data volume" t_settings
+run_test "all eight ChirpStack event types are known to the installed chirpstack-api" t_event_types
 run_test "gunicorn log level is info" t_log_level
 
 run_test "app starts and becomes healthy" t_starts_healthy
