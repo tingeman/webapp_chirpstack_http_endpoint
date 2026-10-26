@@ -15,11 +15,16 @@ class RunServerSettings(CommonSettings):
     PORT: int = 8050
 
 class ConfigSettings(CommonSettings):
+    # All persistent data lives in the data volume (mounted at /var/www/app/data in the
+    # container). The defaults are absolute so that they do not depend on the working
+    # directory. The Dockerfile sets the same values as environment variables, which take
+    # precedence over the .env.<APP_ENV> file.
+
     # Database settings
-    DB_FILE: str = "events.sqlite"
+    DB_FILE: str = "/var/www/app/data/events.sqlite"
 
     # JSON output directory
-    JSON_OUTPUT_DIR: str = "./data/json/"
+    JSON_OUTPUT_DIR: str = "/var/www/app/data/json/"
 
     # Any other settings can be added here
     LOG_LEVEL: str = "INFO"
