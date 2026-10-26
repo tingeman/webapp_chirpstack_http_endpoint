@@ -5,3 +5,5 @@ chirpstack-api
 protobuf
 pydantic
 pydantic-settings
+# gunicorn's gevent worker imports it without declaring it
+packaging
