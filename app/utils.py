@@ -6,9 +6,7 @@ from pathlib import Path
 from config import settings
 
 OUTPUT_DIR = Path(settings.JSON_OUTPUT_DIR)  # Path to the JSON output directory from config
-
-# Create the output directory if it does not exist
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# The directory is created on the first write, only when settings.WRITE_JSON_FILES is on.
 
 # Unmarshal the incoming data into a protobuf message
 def unmarshal(body: bytes, payload, is_json: bool):
@@ -45,7 +43,10 @@ def save_json_to_file(event_type: str, json_data) -> None:
         protobuf_message (protobuf message): The protobuf message to save.
         event_type (str): The type of event (e.g., "uplink" or "join").
     """
+    if not settings.WRITE_JSON_FILES:
+        return
     try:
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         # Generate a filename based on the event type and current timestamp
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{event_type}_{timestamp}.json"
@@ -56,15 +57,3 @@ def save_json_to_file(event_type: str, json_data) -> None:
         logging.info(f"Saved JSON message to {filepath}")
     except Exception as e:
         logging.error(f"Failed to save JSON message: {str(e)}")
-
-def clear_json_files() -> None:
-    """
-    Removes all JSON files from the data directory.
-    """
-    try:
-        for file_path in OUTPUT_DIR.glob('*.json'):
-            file_path.unlink()
-            logging.info(f"Removed file: {file_path}")
-        logging.info(f"All JSON files cleared from {OUTPUT_DIR}.")
-    except Exception as e:
-        logging.error(f"Failed to clear JSON files: {str(e)}")

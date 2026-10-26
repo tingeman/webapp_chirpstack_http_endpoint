@@ -1,8 +1,0 @@
-Flask
-gunicorn
-gevent
-chirpstack-api
-protobuf
-pydantic
-pydantic-settings
-

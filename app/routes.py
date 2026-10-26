@@ -1,9 +1,8 @@
 import time
 import logging
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template
 from handlers import handle_event
-from database import get_last_messages, clear_messages_from_db
-from utils import clear_json_files
+from database import get_last_messages
 
 bp = Blueprint('endpoint', __name__)
 
@@ -67,17 +66,6 @@ def health_check() -> tuple:
     Simple health check endpoint.
     """
     return "OK", 200
-
-@bp.route('/clear_messages', methods=['GET'])
-def clear_messages_route():
-    """
-    Route to display a confirmation page and clear the database and JSON files upon user confirmation.
-    """
-    if 'confirm' in request.args and request.args.get('confirm') == 'yes':
-        clear_messages_from_db()
-        clear_json_files()  # Replace with the actual path to the JSON files
-        return redirect(url_for('endpoint.index'))  # Redirect to the home page after clearing messages
-    return render_template('clear_messages.html')
 
 @bp.route('/', methods=['GET'])
 def index() -> str:

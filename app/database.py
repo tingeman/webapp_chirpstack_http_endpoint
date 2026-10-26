@@ -182,18 +182,3 @@ def check_table_exists(table_name: str) -> bool:
     except sqlite3.Error as e:
         logging.error(f"Failed to check if table exists: {str(e)}")
         return False
-
-def clear_messages_from_db() -> None:
-    """
-    Clears all messages from the SQLite database.
-    """
-    try:
-        db = get_db()  # Use get_db() to get the connection
-        with RetryDBOperation():
-            cursor = db.cursor()
-            cursor.execute('DELETE FROM messages')
-        with RetryDBOperation():
-            db.commit()
-        logging.info("All messages cleared from the database.")
-    except sqlite3.Error as e:
-        logging.error(f"Failed to clear messages from the database: {str(e)}")
