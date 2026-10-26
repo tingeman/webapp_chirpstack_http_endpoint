@@ -160,12 +160,10 @@ t_index() {
 
 t_uplink_protobuf() {
   need_app
-  local out files rows
+  local out rows
   out="$(docker exec "$C1" python -c "$UPLINK_PY" | req "$C1" POST '/event?event=up' application/octet-stream)"
   expect "POST /event?event=up" "$out" "200 up event processed"
-  files="$(docker exec "$C1" sh -c "ls $DATA/json")"
-  case "$files" in up_*.json) ;; *) fail_t "no up_*.json file in $DATA/json: $files" ;; esac
-  contains "json file" "$(docker exec "$C1" sh -c "cat $DATA/json/up_*.json")" "0102030405060708"
+  expect "data directory content" "$(docker exec "$C1" sh -c "ls -A $DATA")" "events.sqlite"
   rows="$(docker exec "$C1" python -c "
 import sqlite3
 c = sqlite3.connect('$DATA/events.sqlite')
@@ -224,7 +222,20 @@ t_persistence() {
   docker rm -f "$C1" >/dev/null
   start_app "$C2"
   contains "messages after restart" "$(req "$C2" GET '/last-messages?n=10' </dev/null)" "0102030405060708"
-  expect "json files after restart" "$(docker exec "$C2" sh -c "ls $DATA/json | wc -l")" "2"
+  expect "data directory content" "$(docker exec "$C2" sh -c "ls -A $DATA")" "events.sqlite"
+}
+
+t_json_files_on() {
+  local c="$PFX-json" v="$PFX-jsondata" out
+  docker volume create "$v" >/dev/null || fail_t "could not create the volume"
+  docker run -d --network none --name "$c" -e WRITE_JSON_FILES=true -v "$v:$DATA" "$IMAGE" >/dev/null || fail_t "could not start"
+  wait_until 80 health_is "$c" healthy || fail_t "never healthy: $(docker logs "$c" 2>&1 | tail -n 8)"
+  out="$(docker exec "$c" python -c "$UPLINK_PY" | req "$c" POST '/event?event=up' application/octet-stream)"
+  expect "POST /event?event=up" "$out" "200 up event processed"
+  case "$(docker exec "$c" sh -c "ls $DATA/json")" in up_*.json) ;; *) fail_t "no up_*.json file in $DATA/json" ;; esac
+  contains "json file" "$(docker exec "$c" sh -c "cat $DATA/json/up_*.json")" "0102030405060708"
+  contains "sqlite also written" "$(req "$c" GET '/last-messages?n=5' </dev/null)" "test-sensor"
+  docker rm -f "$c" >/dev/null; docker volume rm -f "$v" >/dev/null
 }
 
 # ---- run -----------------------------------------------------------------------------
@@ -240,13 +251,14 @@ run_test "gunicorn log level is info" t_log_level
 run_test "app starts and becomes healthy" t_starts_healthy
 run_test "GET /health is OK" t_health
 run_test "GET / serves the index page" t_index
-run_test "protobuf uplink is stored as JSON file and in SQLite in the data volume" t_uplink_protobuf
+run_test "protobuf uplink is stored in SQLite in the data volume, no JSON file by default" t_uplink_protobuf
 run_test "JSON uplink is accepted" t_uplink_json
 run_test "bad requests are rejected" t_bad_requests
 run_test "/clear_messages is gone and deletes nothing" t_clear_messages_gone
 run_test "no data files outside the volume, database owned by uid 30000" t_data_only_in_volume
 run_test "container log shows info lines, no debug" t_logs
 run_test "data survives a new container on the same volume" t_persistence
+run_test "WRITE_JSON_FILES=true also writes the JSON file" t_json_files_on
 
 TOTAL=$((PASSED + FAILED))
 if [ "$FAILED" -eq 0 ]; then

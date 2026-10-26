@@ -26,6 +26,10 @@ class ConfigSettings(CommonSettings):
     # JSON output directory
     JSON_OUTPUT_DIR: str = "/var/www/app/data/json/"
 
+    # Also write every event as a JSON file under JSON_OUTPUT_DIR. Off by default: the
+    # events are stored in SQLite, and the pages read from there.
+    WRITE_JSON_FILES: bool = False
+
     # Any other settings can be added here
     LOG_LEVEL: str = "INFO"
 

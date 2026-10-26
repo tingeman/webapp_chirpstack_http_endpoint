@@ -1,8 +1,9 @@
 # webapp_chirpstack_http_endpoint
 
 Receives ChirpStack HTTP integration events (`POST /event?event=up|join|ack|txack|log|status|location|integration`,
-protobuf or JSON), stores each event as a JSON file under `/var/www/app/data/json/` and as a
-row in the SQLite file `/var/www/app/data/events.sqlite`. Both are inside the data volume.
+protobuf or JSON), stores each event as a row in the SQLite file `/var/www/app/data/events.sqlite`, inside the
+data volume. With `WRITE_JSON_FILES=true` it also writes each event as a JSON file under
+`/var/www/app/data/json/` (off by default; no page reads these files).
 
 Pages: `GET /` (index), `GET /last-messages?n=5&event=up`, `GET /health`.
 There is no endpoint that deletes data.
@@ -15,6 +16,8 @@ There is no endpoint that deletes data.
 - Runs as user `web` (UID 30000), which owns the files of the data volume. No `sudo` or
   editors in the image.
 - `HEALTHCHECK` calls `/health`. gunicorn logs at `info` level to stdout/stderr (`docker logs`).
+- `WRITE_JSON_FILES` (default `false`, set in the `Dockerfile`) switches the JSON file copies on. With it
+  off, the `json/` directory is never created. Set it with `-e WRITE_JSON_FILES=true`.
 - `DB_FILE` and `JSON_OUTPUT_DIR` are set in the `Dockerfile` (and as defaults in `app/config.py`)
   to paths inside the data volume. Environment variables take precedence over `app/.env.production`.
 
@@ -40,8 +43,8 @@ containers and volume removed afterwards):
 tests/run.sh http_endpoint:local
 ```
 
-They check the image contents, health, that a protobuf-encoded uplink is stored as JSON file
-and in SQLite inside the data volume, that `/clear_messages` is gone, and that data survives a
+They check the image contents, health, that a protobuf-encoded uplink is stored in SQLite
+inside the data volume (and as a JSON file only with `WRITE_JSON_FILES=true`), that `/clear_messages` is gone, and that data survives a
 new container. `scripts/build_image.sh` runs them automatically.
 
 ## Changing the Python packages

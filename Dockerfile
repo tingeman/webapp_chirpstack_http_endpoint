@@ -7,12 +7,12 @@ ENV DASH_DEBUG_MODE=False \
     APP_ENV=production \
     PYTHONUNBUFFERED=1 \
     DB_FILE=/var/www/app/data/events.sqlite \
-    JSON_OUTPUT_DIR=/var/www/app/data/json/
+    JSON_OUTPUT_DIR=/var/www/app/data/json/ \n    WRITE_JSON_FILES=false
 
 # The web user keeps UID 30000, which owns the files in the existing data volume.
 RUN adduser --disabled-password --no-create-home --uid 30000 web
 
-# Data directory = mount point of the data volume (SQLite file and JSON files live here).
+# Data directory = mount point of the data volume (the SQLite file lives here; JSON files only with WRITE_JSON_FILES=true).
 RUN mkdir -p /var/www/app/data \
     && chown -R web:web /var/www/app \
     && chmod -R 755 /var/www/app
